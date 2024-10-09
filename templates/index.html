@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload CSV dan Pilih Kolom</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .card {
+            margin-top: 50px;
+        }
+        #upload-form {
+            margin: 20px;
+        }
+        .progress {
+            display: none;
+            margin-top: 15px;
+        }
+        #column-selection {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <div class="card-header text-center">
+                <h2>Unggah File CSV dan Pilih Kolom</h2>
+            </div>
+            <div class="card-body">
+                <form id="upload-form" enctype="multipart/form-data">
+                    <div class="form-group">
+                        <label for="file">Pilih file CSV:</label>
+                        <input type="file" class="form-control-file" name="file" id="file" required>
+                    </div>
+
+                    <div id="column-selection" style="display:none;">
+                        <div class="form-group">
+                            <label for="column_name">Pilih Kolom:</label>
+                            <select name="column_name" id="column_name" class="form-control" required>
+                                <!-- Kolom akan dimasukkan di sini dengan JavaScript -->
+                            </select>
+                        </div>
+
+                        <input type="hidden" name="file_path" id="file_path">
+                        <button type="submit" class="btn btn-primary">Generate WordCloud</button>
+                    </div>
+
+                    <div class="progress">
+                        <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 0%;" id="progress-bar"></div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        $(document).ready(function () {
+            // Ketika file dipilih, kirim file ke server untuk mendapatkan kolom
+            $('#file').on('change', function () {
+                var formData = new FormData();
+                formData.append('file', $('#file')[0].files[0]);
+
+                $('.progress').show();
+                $('#progress-bar').css('width', '0%').attr('aria-valuenow', 0);
+
+                $.ajax({
+                    url: '/upload',
+                    type: 'POST',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    xhr: function () {
+                        var xhr = new window.XMLHttpRequest();
+                        // Progress Bar
+                        xhr.upload.addEventListener('progress', function (evt) {
+                            if (evt.lengthComputable) {
+                                var percentComplete = evt.loaded / evt.total;
+                                percentComplete = parseInt(percentComplete * 100);
+                                $('#progress-bar').css('width', percentComplete + '%').attr('aria-valuenow', percentComplete);
+
+                                if (percentComplete === 100) {
+                                    $('#progress-bar').addClass('bg-success');
+                                }
+                            }
+                        }, false);
+                        return xhr;
+                    },
+                    success: function (response) {
+                        $('.progress').hide();
+                        if (response.columns) {
+                            // Tampilkan kolom di dropdown
+                            var columnSelect = $('#column_name');
+                            columnSelect.empty();
+                            response.columns.forEach(function (column) {
+                                columnSelect.append('<option value="' + column + '">' + column + '</option>');
+                            });
+                            $('#file_path').val(response.file_path);  // Simpan file path
+                            $('#column-selection').slideDown();  // Tampilkan bagian pemilihan kolom
+                        } else {
+                            alert('Terjadi kesalahan: ' + response.error);
+                        }
+                    },
+                    error: function (error) {
+                        $('.progress').hide();
+                        alert('Error: ' + error.responseText);
+                    }
+                });
+            });
+
+            // Kirim form untuk generate WordCloud setelah kolom dipilih
+            $('#upload-form').on('submit', function (e) {
+                e.preventDefault();
+                var formData = $(this).serialize();
+                $.post('/generate', formData, function (data) {
+                    $('body').html(data);  // Tampilkan halaman hasil
+                });
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <title>Hasil WordCloud dan Diagram Batang</title>
+    <style>
+        body {
+            background-color: #f8f9fa;
+            padding: 20px;
+        }
+        .container {
+            margin-top: 30px;
+        }
+        .card {
+            margin-top: 20px;
+        }
+        .wordcloud-img, .bar-chart-img {
+            width: 100%;
+            max-height: 400px;
+            object-fit: contain;
+        }
+        .wordcloud-title, .bar-chart-title {
+            margin-bottom: 15px;
+        }
+        .result-row {
+            margin-top: 40px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="text-center">
+            <h1 class="mb-4">Hasil WordCloud dan Diagram Batang</h1>
+        </div>
+
+        <!-- WordCloud dan Diagram Batang berdampingan -->
+        <div class="row result-row">
+            <!-- WordCloud -->
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h2 class="wordcloud-title text-center">WordCloud untuk Kolom Terpilih</h2>
+                        <img src="{{ wordcloud_image_path }}" alt="WordCloud" class="img-fluid wordcloud-img">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Diagram Batang -->
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h2 class="bar-chart-title text-center">Diagram Batang - Top 10 Kata</h2>
+                        <img src="{{ bar_chart_path }}" alt="Bar Chart" class="img-fluid bar-chart-img">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tombol Kembali -->
+        <div class="text-center mt-5">
+            <a href="/" class="btn btn-primary btn-lg">Kembali</a>
+        </div>
+    </div>
+
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
